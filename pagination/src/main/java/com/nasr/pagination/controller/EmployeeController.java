@@ -22,7 +22,7 @@ public class EmployeeController {
         return "index";*/
 
         //default page number is 1
-       return findPaginated(1,model);
+       return findPaginated(1,"firstName","asc",model);
     }
     @GetMapping("/showNewEmployeeForm")
     public String showNewEmployeeForm(Model model){
@@ -48,16 +48,21 @@ public class EmployeeController {
         return "forward:/";
     }
     @GetMapping("/page/{PageNo}")
-    public String findPaginated(@PathVariable("PageNo") int pageNumber,Model model){
+    public String findPaginated(@PathVariable("PageNo") int pageNumber,@RequestParam("sortField") String sortField
+            ,@RequestParam("sortDir") String sortDir, Model model){
         //when page number greather than one then /page/{pageNo} api is call
         int pageSize=5;
-        Page<Employee> page=service.findPaginated(pageNumber,pageSize);
+        Page<Employee> page=service.findPaginated(pageNumber,pageSize,sortField,sortDir);
         List<Employee> employees=page.getContent();
         model.addAttribute("currentPage",pageNumber);
         model.addAttribute("totalPages",page.getTotalPages());
         model.addAttribute("totalItems",page.getTotalElements());
         model.addAttribute("listEmployees",employees);
 
+        //add three attribute for sorting
+        model.addAttribute("sortField",sortField);
+        model.addAttribute("sortDir",sortField);
+        model.addAttribute("reverseSortDir",sortDir.equals("asc") ? "desc" : "asc");
         return "index";
     }
 }
